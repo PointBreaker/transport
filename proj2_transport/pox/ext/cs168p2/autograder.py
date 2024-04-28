@@ -74,7 +74,7 @@ class IndTestCase(unittest.TestCase):
 
     self.assertEqual(pox.get_retcode(), 0,
         "Something went wrong while executing test. Run this test manually for more details (see spec 3.6.1 for instructions).")
-    output = str(pox.get_stderr())
+    output = pox.get_stderr().decode('utf-8')
     output = ansi_escape.sub('', output)
     self.assertTrue(self.pass_str in output, "Test failed, the console output was:\n{0}".format(output))
 
