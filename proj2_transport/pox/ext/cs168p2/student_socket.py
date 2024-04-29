@@ -542,7 +542,10 @@ class StudentUSocket(StudentUSocketBase):
     self.bind(dev.ip_addr, 0)
 
     ## Start of Stage 1 ##
-
+    p = self.new_packet(ack=False, syn=True)
+    p.tcp.seq = self.snd.iss
+    self.tx(p)
+    self.state = SYN_SENT
     ## End of Stage 1 ##
 
   def tx(self, p, retxed=False):
@@ -583,13 +586,13 @@ class StudentUSocket(StudentUSocketBase):
     """
     seg = p.tcp
     payload = p.app
-
     assert self.state not in (SYN_RECEIVED, LISTEN)
 
     if self.state is CLOSED:
       return
     ## Start of Stage 1 ##
-
+    if self.state is SYN_SENT:
+        self.handle_synsent(p.tcp)
     ## End of Stage 1 ##
     elif self.state in (ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2,
                         CLOSE_WAIT, CLOSING, LAST_ACK, TIME_WAIT):
@@ -631,7 +634,6 @@ class StudentUSocket(StudentUSocketBase):
     still part of the 3 way handshake.
     """
     assert seg.SYN  # don't support SYN_RECEIVED
-
     acceptable_ack = False
     if seg.ACK:
       if seg.ack |LE| self.snd.iss or seg.ack |GT| self.snd.nxt:
@@ -641,13 +643,13 @@ class StudentUSocket(StudentUSocketBase):
         acceptable_ack = True
         acked_pkts = self.retx_queue.pop_upto(seg.ack)
         self.log.debug("acked SYN of pkt={0}".format(acked_pkts))
-
     if acceptable_ack:
       ## Start of Stage 1 ##
-
+      self.rcv.nxt = seg.seq |PLUS| 1
+      self.snd.una = seg.ack
       if self.snd.una |GT| self.snd.iss:
-        pass
-
+        self.state = ESTABLISHED
+        self.set_pending_ack()
       ## End of Stage 1 ##
 
   def update_rto(self, acked_pkt):
