@@ -714,7 +714,8 @@ class StudentUSocket(StudentUSocketBase):
     """
 
     ## Start of Stage 5 ##
-    self.snd.wnd = self.TX_DATA_MAX # remove when implemented
+    # self.snd.wnd = self.TX_DATA_MAX # remove when implemented
+    self.snd.wnd = seg.win
     self.snd.wl1 = seg.seq
     self.snd.wl2 = seg.ack
 
@@ -862,11 +863,13 @@ class StudentUSocket(StudentUSocketBase):
     #   self.log.debug(f"current tx_data is {self.tx_data}")
       self.log.debug(f"current remaining is {remaining}")
       self.log.debug(f"snd.wnd is {snd.wnd}")
-      payload = self.tx_data[:self.mss]
+      
+      amount_per_flight = min(self.mss, snd.wnd)
+      payload = self.tx_data[:amount_per_flight]
       
       if bytes_sent + len(payload) > snd.wnd:
           break
-      self.tx_data = self.tx_data[self.mss:]
+      self.tx_data = self.tx_data[amount_per_flight:]
       
       p = self.new_packet(data=payload)
       remaining = len(self.tx_data)
