@@ -376,7 +376,7 @@ class RetxQueue(object):
     """
     return self.q[0]
 
-class RecvQueue(RetxQueue):
+class  RecvQueue(RetxQueue):
   """
   Implements a receive queue that behaves almost exactly like
   a RetxQueue, except packets push()ed can arrive out of order.
@@ -598,7 +598,14 @@ class StudentUSocket(StudentUSocketBase):
                         CLOSE_WAIT, CLOSING, LAST_ACK, TIME_WAIT):
       if self.acceptable_seg(seg, payload):
         ## Start of Stage 2 ##
-        
+        self.log.error(f"what is current state? {self.state}")
+        self.log.error(f"what is the seg? {seg}")
+        self.log.error(f"what is the payload? {payload}")
+        self.log.error(f"what is current expected next? {self.rcv.nxt}")
+        if seg.seq |EQ| self.rcv.nxt: # in order
+            self.handle_accepted_seg(seg, payload)
+        else:
+            self.set_pending_ack()
         ## End of Stage 2 ##
         pass
         ## Start of Stage 3 ##
@@ -680,7 +687,10 @@ class StudentUSocket(StudentUSocketBase):
       payload = payload[:rcv.wnd] # Chop to size!
 
     ## Start of Stage 2 ##
-
+    rcv.nxt = rcv.nxt |PLUS| len(payload)
+    rcv.wnd = rcv.wnd |MINUS| len(payload)
+    self.rx_data += payload
+    self.set_pending_ack()
     ## End of Stage 2 ##
 
   def update_window(self, seg):
@@ -807,7 +817,8 @@ class StudentUSocket(StudentUSocketBase):
       return
 
     ## Start of Stage 2 ##
-
+    if self.state in (ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2) and len(payload) != 0:
+        self.handle_accepted_payload(payload)
     ## End of Stage 2 ##
 
     # eight, check FIN bit
