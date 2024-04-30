@@ -564,7 +564,7 @@ class StudentUSocket(StudentUSocketBase):
     if (p.tcp.SYN or p.tcp.FIN or p.tcp.payload) and not retxed:
 
       ## Start of Stage 4 ##
-
+      self.snd.nxt = self.snd.nxt |PLUS| len(p.tcp.payload)
       ## End of Stage 4 ##
       pass
 
@@ -668,6 +668,7 @@ class StudentUSocket(StudentUSocketBase):
       if self.snd.una |GT| self.snd.iss:
         self.state = ESTABLISHED
         self.set_pending_ack()
+        self.update_window(seg)
       ## End of Stage 1 ##
 
   def update_rto(self, acked_pkt):
@@ -727,7 +728,7 @@ class StudentUSocket(StudentUSocketBase):
     acceptable_seg()
     """
     ## Start of Stage 4 ##
-
+    self.snd.una = seg.ack |PLUS| 1
     ## End of Stage 4    ##
 
 
@@ -780,7 +781,14 @@ class StudentUSocket(StudentUSocketBase):
     # fifth, check ACK field
     if self.state in (ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT, CLOSING):
       ## Start of Stage 4 ##
-
+      if snd.una |LT| seg.ack and seg.ack |LE| snd.nxt: # one of the packet we sent was just acked
+          self.handle_accepted_ack(seg)
+      elif seg.ack |LT| snd.una: # old ack
+          continue_after_ack = False
+      else: # unexpected packet
+          continue_after_ack = False
+          self.set_pending_ack()
+          return
       ## End of Stage 4 ##
 
       if snd.una |LE| seg.ack and seg.ack |LE| snd.nxt:
@@ -849,11 +857,22 @@ class StudentUSocket(StudentUSocketBase):
     bytes_sent = 0
 
     ## Start of Stage 4 ##
-    remaining = 0
+    remaining = len(self.tx_data)
     while remaining > 0:
-
-      num_pkts += 1
+    #   self.log.debug(f"current tx_data is {self.tx_data}")
+      self.log.debug(f"current remaining is {remaining}")
+      self.log.debug(f"snd.wnd is {snd.wnd}")
+      payload = self.tx_data[:self.mss]
+      
+      if bytes_sent + len(payload) > snd.wnd:
+          break
+      self.tx_data = self.tx_data[self.mss:]
+      
+      p = self.new_packet(data=payload)
+      remaining = len(self.tx_data)
       bytes_sent += len(payload)
+      num_pkts += 1
+      self.tx(p)
 
     self.log.debug("sent {0} packets with {1} bytes total".format(num_pkts, bytes_sent))
     ## End of Stage 4 ##
