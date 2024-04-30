@@ -607,22 +607,6 @@ class StudentUSocket(StudentUSocketBase):
         ## Start of Stage 3 ##
         # you may need to remove Stage 2's code.
         self.rx_queue.push(p)
-        while not self.rx_queue.empty():
-            cur_seq, cur_packet = self.rx_queue.pop()
-            self.log.error(f"what is current state? {self.state}")
-            self.log.error(f"what is the seg's seq? {cur_seq}")
-            self.log.error(f"what is the payload? {cur_packet.app}")
-            self.log.error(f"what is current expected next? {self.rcv.nxt}")
-            if cur_seq |GT| self.rcv.nxt:
-                self.rx_queue.push(cur_packet)
-                self.set_pending_ack()
-                break
-            elif cur_seq |EQ| self.rcv.nxt:
-                self.handle_accepted_seg(cur_packet.tcp, cur_packet.app)
-            else:
-                self.log.error(f"\n\n HITTED THE OVERLAP CASE !!! \n\n")
-                payload = cur_packet.app[self.rcv.nxt |MINUS| cur_seq:]
-                self.handle_accepted_seg(cur_packet.tcp, payload)
         ## End of Stage 3 ##
       else:
         self.set_pending_ack()
@@ -630,6 +614,21 @@ class StudentUSocket(StudentUSocketBase):
      
     ## Start of Stage 3 ##
     # checking recv queue
+    while not self.rx_queue.empty():
+        cur_seq, cur_packet = self.rx_queue.pop()
+        self.log.error(f"what is current state? {self.state}")
+        self.log.error(f"what is the seg's seq? {cur_seq}")
+        self.log.error(f"what is the payload? {cur_packet.app}")
+        self.log.error(f"what is current expected next? {self.rcv.nxt}")
+        if cur_seq |GT| self.rcv.nxt:
+            self.rx_queue.push(cur_packet)
+            break
+        elif cur_seq |EQ| self.rcv.nxt: # expected packet
+            self.handle_accepted_seg(cur_packet.tcp, cur_packet.app)
+        else: # overlap
+            self.log.error(f"\n\n HITTED THE OVERLAP CASE !!! \n\n")
+            payload = cur_packet.app[self.rcv.nxt |MINUS| cur_seq:]
+            self.handle_accepted_seg(cur_packet.tcp, payload)
     # Hint: data = packet.app[self.rcv.nxt |MINUS| packet.tcp.seq:]
 
     ## End of Stage 3 ##
