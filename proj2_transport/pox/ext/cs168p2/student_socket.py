@@ -478,7 +478,7 @@ class StudentUSocket(StudentUSocketBase):
       self._delete_tcb()
     elif self.state is ESTABLISHED:
       ## Start of Stage 7 ##
-
+      self.fin_ctrl.set_pending(FIN_WAIT_1)
       ## End of Stage 7 ##
       pass
     elif self.state in (FIN_WAIT_1,FIN_WAIT_2):
@@ -728,7 +728,7 @@ class StudentUSocket(StudentUSocketBase):
     acceptable_seg()
     """
     ## Start of Stage 4 ##
-    self.snd.una = seg.ack |PLUS| 1
+    self.snd.una = seg.ack
     ## End of Stage 4    ##
 
 
@@ -767,7 +767,17 @@ class StudentUSocket(StudentUSocketBase):
 
 
     ## Start of Stage 7 ##
-
+    self.log.debug(f"current packet is {seg}")
+    self.log.debug(f"current state is {self.state}")
+    self.log.debug(f"current snd.una is {self.snd.una}")
+    if self.state == FIN_WAIT_1:
+        if seg.ack |EQ| self.snd.una:
+            self.start_timer_timewait()
+        else:
+            self.state = CLOSING
+    if self.state == FIN_WAIT_2:
+        if seg.ack |EQ| self.snd.una:
+            self.start_timer_timewait()
     ## End of Stage 7 ##
 
   def check_ack(self, seg):
@@ -802,12 +812,14 @@ class StudentUSocket(StudentUSocketBase):
     ## Start of Stage 6 ##
     ## Start of Stage 7 ##
     if self.state == FIN_WAIT_1:
-      pass
+      if seg.ack |EQ| self.snd.una:
+          self.state = FIN_WAIT_2
     elif self.state == FIN_WAIT_2:
       if self.retx_queue.empty():
         self.set_pending_ack()
     elif self.state == CLOSING:
-      pass
+      if seg.ack |EQ| self.snd.una:
+          self.start_timer_timewait()
     elif self.state == LAST_ACK:
       if self.fin_ctrl.acks_our_fin(seg.ack):
           self._delete_tcb()
