@@ -886,7 +886,8 @@ class StudentUSocket(StudentUSocketBase):
 
     ## Start of Stage 4 ##
     remaining = len(self.tx_data)
-    while remaining > 0:
+    bytes_in_fly = snd.nxt - snd.una
+    while remaining > 0 and bytes_in_fly |LE| snd.wnd:
     #   self.log.debug(f"current tx_data is {self.tx_data}")
       self.log.debug(f"current remaining is {remaining}")
       self.log.debug(f"snd.wnd is {snd.wnd}")
