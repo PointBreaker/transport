@@ -558,14 +558,16 @@ class StudentUSocket(StudentUSocketBase):
 
     ## Start of Stage 8 ##
     # in Stage 8, you may need to modify what you implemented in Stage 4.
-
+    
 
     if (p.tcp.SYN or p.tcp.FIN or p.tcp.payload) and not retxed:
 
       ## Start of Stage 4 ##
+      self.log.debug(f"current p.tx_ts is {p.tx_ts}, seq no is {p.tcp.seq}")
+      p.tx_ts = self.stack.now
+      self.retx_queue.push(p)
       self.snd.nxt = self.snd.nxt |PLUS| len(p.tcp.payload)
       ## End of Stage 4 ##
-      pass
 
     ## End of Stage 8 ##
     
@@ -733,7 +735,7 @@ class StudentUSocket(StudentUSocketBase):
 
 
     ## Start of Stage 8 ##
-
+    self.retx_queue.pop_upto(seg.ack)
     ## End of Stage 8 ##
 
 
@@ -919,7 +921,10 @@ class StudentUSocket(StudentUSocketBase):
     """
 
     ## Start of Stage 8 ##
-    time_in_queue = 0 # modify when implemented
+    time_in_queue = 0
+    if not self.retx_queue.empty():
+        _, p = self.retx_queue.get_earliest_pkt()
+        time_in_queue = self.stack.now - p.tx_ts
 
     ## End of Stage 8 ##
 
