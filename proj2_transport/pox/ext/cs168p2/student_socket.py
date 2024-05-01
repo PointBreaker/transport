@@ -485,9 +485,8 @@ class StudentUSocket(StudentUSocketBase):
       raise RuntimeError("close() is invalid in FIN_WAIT states")
     elif self.state is CLOSE_WAIT:
       ## Start of Stage 6 ##
-
+      self.fin_ctrl.set_pending(LAST_ACK)
       ## End of Stage 6 ##
-      pass
     elif self.state in (CLOSING,LAST_ACK,TIME_WAIT):
       raise RuntimeError("connecting closing")
     else:
@@ -617,7 +616,7 @@ class StudentUSocket(StudentUSocketBase):
     while not self.rx_queue.empty():
         cur_seq, cur_packet = self.rx_queue.pop()
         self.log.error(f"what is current state? {self.state}")
-        self.log.error(f"what is the seg's seq? {cur_seq}")
+        self.log.error(f"what is the seg? {cur_packet.tcp}")
         self.log.error(f"what is the payload? {cur_packet.app}")
         self.log.error(f"what is current expected next? {self.rcv.nxt}")
         if cur_seq |GT| self.rcv.nxt:
@@ -760,7 +759,10 @@ class StudentUSocket(StudentUSocketBase):
     self.log.info("Got FIN!")
 
     ## Start of Stage 6 ##
-
+    self.rcv.nxt = seg.seq |PLUS| 1
+    self.set_pending_ack()
+    if self.state == ESTABLISHED:
+        self.state = CLOSE_WAIT
     ## End of Stage 6 ##
 
 
@@ -779,10 +781,11 @@ class StudentUSocket(StudentUSocketBase):
     snd = self.snd
     continue_after_ack = True
 
+    self.log.debug(f"current una is {snd.una}, seg's ack is {seg.ack}")
     # fifth, check ACK field
     if self.state in (ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT, CLOSING):
       ## Start of Stage 4 ##
-      if snd.una |LT| seg.ack and seg.ack |LE| snd.nxt: # one of the packet we sent was just acked
+      if snd.una |LE| seg.ack and seg.ack |LE| snd.nxt: # one of the packet we sent was just acked
           self.handle_accepted_ack(seg)
       elif seg.ack |LT| snd.una: # old ack
           continue_after_ack = False
@@ -806,12 +809,13 @@ class StudentUSocket(StudentUSocketBase):
     elif self.state == CLOSING:
       pass
     elif self.state == LAST_ACK:
-      pass
+      if self.fin_ctrl.acks_our_fin(seg.ack):
+          self._delete_tcb()
     elif self.state == TIME_WAIT:
       # restart the 2 msl timeout
       self.set_pending_ack()
       self.start_timer_timewait()
-
+      
     ## End of Stage 6 ##
     ## End of Stage 7 ##
 
@@ -827,12 +831,12 @@ class StudentUSocket(StudentUSocketBase):
     """
     snd = self.snd
     rcv = self.rcv
-
     assert not seg.SYN
     if not seg.ACK:
       return
 
     continue_after_ack = self.check_ack(seg)
+    self.log.debug(f"handeling seg {seg}, check is {continue_after_ack}")
     if not continue_after_ack:
       return
 
@@ -843,6 +847,7 @@ class StudentUSocket(StudentUSocketBase):
 
     # eight, check FIN bit
     if seg.FIN:
+      self.log.debug(f"received packet fin: {seg}")
       self.handle_accepted_fin(seg)
 
   def maybe_send(self):

@@ -1,0 +1,95 @@
+test_s6_t1 (__main__.test_s6_t1) ... FAIL
+
+======================================================================
+FAIL: test_s6_t1 (__main__.test_s6_t1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bobby/Downloads/cs168-fa22-transport-student-main/proj2_transport/pox/ext/cs168p2/autograder.py", line 108, in unit_test
+    self.run_pox(self.cfg, self.trace)
+  File "/Users/bobby/Downloads/cs168-fa22-transport-student-main/proj2_transport/pox/ext/cs168p2/autograder.py", line 79, in run_pox
+    self.assertTrue(self.pass_str in output, "Test failed, the console output was:\n{0}".format(output))
+AssertionError: False is not true : Test failed, the console output was:
+[cs168p2                ] [00:00:00] Using student socket for: c1
+[boot                   ] [00:00:00] Not launching of_01
+[core                   ] [00:00:00] POX 0.8.0 (halosaur) going up...
+[core                   ] [00:00:00] Running on CPython (3.10.9/Feb 2 2023 20:24:27)
+[core                   ] [00:00:00] Platform is macOS-14.4.1-x86_64-i386-64bit
+[tcpip.sim_core         ] [00:00:00] Routing completed in 3 rounds
+[core                   ] [00:00:00] POX 0.8.0 (halosaur) is up.
+[tcpip.sim_core         ] [00:00:00] Starting simulation
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.100] tx seqno=179170251
+[r1.stack               ] [00:00:00.100] Writing to ./trace/s6_t1/2024-05-01T12:16:32.299832_r1.pcap
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.100] State CLOSED -> SYN_SENT by connect:548
+[cs168p2.student_socket ] [00:00:00.121] pop up to seq=179170252, pkts=[]
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.121] acked SYN of pkt=[]
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.121] State SYN_SENT -> ESTABLISHED by handle_synsent:669 rx:595
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.121] tx seqno=179170252
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.121] DelayedCloseApp connected to 10.255.255.1:1000
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.121] DELAYED will shutdown socket at 1 sec
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.141] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.141] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.141] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.141] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:00.141] tx seqno=179170252
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:01.121] DELAYED will shutdown socket now
+[tcpip.tcp_sockets.10.255.255.1:1000<->10.0.0.1:58292] [00:00:01.213] cwnd:1380 flt:1
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:01.223] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:01.223] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:01.223] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:01.223] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:01.223] tx seqno=179170252
+[tcpip.tcp_sockets.10.255.255.1:1000<->10.0.0.1:58292] [00:00:03.215] cwnd:1380 flt:1
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:03.225] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:03.225] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:03.225] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:03.225] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:03.225] tx seqno=179170252
+[tcpip.tcp_sockets.10.255.255.1:1000<->10.0.0.1:58292] [00:00:07.219] cwnd:1380 flt:1
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:07.229] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:07.229] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:07.229] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:07.229] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:07.229] tx seqno=179170252
+[tcpip.tcp_sockets.10.255.255.1:1000<->10.0.0.1:58292] [00:00:15.227] cwnd:1380 flt:1
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:15.237] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:15.237] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:15.237] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:15.237] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:15.237] tx seqno=179170252
+[tcpip.tcp_sockets.10.255.255.1:1000<->10.0.0.1:58292] [00:00:31.243] cwnd:1380 flt:1
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:31.253] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:31.253] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:31.253] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:31.253] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:00:31.253] tx seqno=179170252
+[s6_t1                  ] [00:00:35] check 0: 1st SYN from client: OK
+[s6_t1                  ] [00:00:35] check 1: 2nd pkt comes from server: OK
+[s6_t1                  ] [00:00:35] check 2: state is SYN_SENT when r2 receives SYN+ACK: OK
+[s6_t1                  ] [00:00:35] check 3: 3rd pkt comes from client: OK
+[s6_t1                  ] [00:00:35] check 4: state is ESTABLISHED when r2 receives ACK: OK
+[s6_t1                  ] [00:00:35] check 5: 4th pkt comes from server: OK
+[s6_t1                  ] [00:00:35] check 6: state is ESTABLISHED when r2 receives FINACK: OK
+[s6_t1                  ] [00:00:35] check 7: 4th pkt is FIN+ACK: OK
+[s6_t1                  ] [00:00:35] check 8: 5th pkt comes from client: OK
+[s6_t1                  ] [00:00:35] check 9: 5th pkt is ACK: OK
+[s6_t1                  ] [00:00:35] check 10: 6th pkt comes from client: FAIL. Expected "True", got "False"
+[s6_t1                  ] [00:00:35] check 11: 6th pkt is FIN+ACK: OK
+[s6_t1                  ] [00:00:35] check 12: 7th pkt comes from server: FAIL. Expected "True", got "False"
+[s6_t1                  ] [00:00:35] check 13: state is LAST_ACK when r2 receives ACK: FAIL. Expected "LAST_ACK", got "ESTABLISHED"
+[s6_t1                  ] [00:00:35] check 14: 7th pkt is ACK: OK
+[s6_t1                  ] [00:00:35] check 15: At end, client state is CLOSED: FAIL. Expected "CLOSED", got "ESTABLISHED"
+[s6_t1                  ] [00:00:35] At least one check failed, test FAILED
+[core                   ] [00:00:35] Going down...
+[tcpip.tcp_sockets.10.255.255.1:1000<->10.0.0.1:58292] [00:01:03.275] cwnd:1380 flt:1
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:01:03.285] what is current state? ESTABLISHED
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:01:03.285] what is the seg's seq? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:01:03.285] what is the payload? b''
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:01:03.285] what is current expected next? 10309
+[cs168p2.student_socket.10.0.0.1:58292<->10.255.255.1:1000] [00:01:03.285] tx seqno=179170252
+[core                   ] [00:01:03.285] Down.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.983s
+
+FAILED (failures=1)
